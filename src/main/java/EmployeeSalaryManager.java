@@ -22,11 +22,9 @@ public class EmployeeSalaryManager {
     }
 
     public void readData(){
-        getFolderPath();
         Calendar calendar = Calendar.getInstance();
         for(int i = 1; i<5; i++){
-            String fileName = folderPath+"\\Week "+i+".xlsx";
-            System.out.println(fileName);
+            String fileName = "Week "+i+".xlsx";
             try {
                 InputStream inputStream = new FileInputStream(new File(fileName));
                 Workbook workbook = new XSSFWorkbook(inputStream);
@@ -85,14 +83,11 @@ public class EmployeeSalaryManager {
                 e.printStackTrace();
             }
         }
-        for(Employee e: employees){
-            e.show();
-        }
     }
 
     public void writeData(){
         try{
-            OutputStream outputStream = new FileOutputStream(new File(folderPath+"\\Salary.xlsx"));
+            OutputStream outputStream = new FileOutputStream(new File("Salary.xlsx"));
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Salary");
             createValue(sheet,workbook);
@@ -311,7 +306,6 @@ public class EmployeeSalaryManager {
         calendar.setTime(date);
         YearMonth yearMonthObject = YearMonth.of(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1);
         int daysInMonth = yearMonthObject.lengthOfMonth();
-        System.out.println(daysInMonth);
         return daysInMonth;
     }
 
