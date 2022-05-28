@@ -620,6 +620,6 @@ public class EmployeeSalaryManager {
                 }
             }
         }
-        return null;
+        return "";
     }
 }
