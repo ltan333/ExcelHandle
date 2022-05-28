@@ -10,9 +10,9 @@ import java.util.*;
 public class EmployeeSalaryManager {
     private String folderPath = "";
     private Date dateInFile;
-    private ArrayList<Employee> employees = new ArrayList<>();
-    private ArrayList<GiftSell> giftSellList = new ArrayList<>();
-    private ArrayList<TotalAll> totalAllList= new ArrayList<>();
+    private final ArrayList<Employee> employees = new ArrayList<>();
+    private final ArrayList<GiftSell> giftSellList = new ArrayList<>();
+    private final ArrayList<TotalAll> totalAllList= new ArrayList<>();
 
     Scanner scan = new Scanner(System.in);
 
@@ -25,6 +25,7 @@ public class EmployeeSalaryManager {
         Calendar calendar = Calendar.getInstance();
         for(int i = 1; i<5; i++){
             String fileName = "Week "+i+".xlsx";
+
             try {
                 InputStream inputStream = new FileInputStream(new File(fileName));
                 Workbook workbook = new XSSFWorkbook(inputStream);
@@ -87,14 +88,15 @@ public class EmployeeSalaryManager {
 
     public void writeData(){
         try{
-            OutputStream outputStream = new FileOutputStream(new File("Salary.xlsx"));
+            OutputStream outputStream;
+            outputStream = new FileOutputStream("Salary.xlsx");
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Salary");
+            //Create data in sheet.
             createValue(sheet,workbook);
+            //Create file.
             workbook.write(outputStream);
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,11 +105,15 @@ public class EmployeeSalaryManager {
     public void createValue(Sheet sheet, Workbook wb){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateInFile);
+        // Get number of days in month
         int numberDateOfMonth = getNumberOfDayInMonth(calendar.getTime());
+        // Set cell style.
         CellStyle cellStyle = wb.createCellStyle();
         CreationHelper createHelper = wb.getCreationHelper();
         cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("MM-dd"));
+        // Sort employee for name.
         sort(employees);
+        // Start row 0 but cell 2 because 0 = day&month, 1 = day
         int rowIndex = 0;
         int cellIndex = 2;
         while (true){
@@ -205,7 +211,106 @@ public class EmployeeSalaryManager {
                 String colName = CellReference.convertNumToColString(c.getColumnIndex()) + (c.getRowIndex()-2);
                 c.setCellFormula(colName+"*10/100");
                 cellIndex=2;
-            }else if(rowIndex == 30+numberDateOfMonth-14){
+            }
+            // Check row
+            else if(rowIndex == 22){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("CHECK");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(1);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,1));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // Cash Without Tip row
+            else if(rowIndex == 23){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Cash Without Tip");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(2);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,2));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // 60% row
+            else if(rowIndex == 24){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("60%");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(3);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,3));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // Check 2 row
+            else if(rowIndex == 25){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Check 2");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(4);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,4));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // 15% row
+            else if(rowIndex == 26){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("15%");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(5);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,5));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // Cash Payment row
+            else if(rowIndex == 27){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Cash Payment");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(6);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,6));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            //Total payment row
+            else if(rowIndex == 28){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Total payment");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(7);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,7));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            else if(rowIndex == 30+numberDateOfMonth-14){
                 Cell totalCell = row.createCell(0);
                 totalCell.setCellValue("TOTAL");
                 for (Employee e:employees){
@@ -260,8 +365,107 @@ public class EmployeeSalaryManager {
                 String colName = CellReference.convertNumToColString(c.getColumnIndex()) + (c.getRowIndex()-2);
                 c.setCellFormula(colName+"*10/100");
                 cellIndex=2;
+            }
+            // Check row
+            else if(rowIndex == 30+numberDateOfMonth-9){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("CHECK");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(1);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,1));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // Cash Without Tip row
+            else if(rowIndex == 30+numberDateOfMonth-8){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Cash Without Tip");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(2);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,2));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // 60% row
+            else if(rowIndex == 30+numberDateOfMonth-7){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("60%");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(3);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,3));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // Check 2 row
+            else if(rowIndex == 30+numberDateOfMonth-6){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Check 2");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(4);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,4));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // 15% row
+            else if(rowIndex == 30+numberDateOfMonth-5){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("15%");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(5);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,5));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            // Cash Payment row
+            else if(rowIndex == 30+numberDateOfMonth-4){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Cash Payment");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(6);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,6));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
+            }
+            //Total payment row
+            else if(rowIndex == 30+numberDateOfMonth-3){
+                Cell percenCell = row.createCell(0);
+                percenCell.setCellValue("Total payment");
+                for(Employee e:employees){
+                    String value = (String) TextFileHandler.defineHowToCalculate(e.getName()).get(7);
+                    if(!value.isEmpty()){
+                        Cell c = row.createCell(cellIndex,CellType.FORMULA);
+                        c.setCellFormula(findCellLocation(value,c,7));
+                    }
+                    cellIndex+=3;
+                }
+                cellIndex=2;
                 break;
             }
+
             rowIndex++;
         }
     }
@@ -354,5 +558,68 @@ public class EmployeeSalaryManager {
         return total;
     }
 
+    private String findCellLocation(String text, Cell cell, int currentIndex){
+        if(text.equalsIgnoreCase("0"))
+            return "0";
 
+        char[] chars = text.replace(" ","").toCharArray();
+        String temp = "";
+        ArrayList<String> list = new ArrayList<>();
+        int i = 0;
+        for (char c :chars) {
+            if(c != '+' && c != '-' && c != '*' && c != '/'){
+                temp+=c;
+                if(i++ == chars.length-1){
+                    list.add(temp);
+                    temp="";
+                }
+                continue;
+            }
+            list.add(temp);
+            list.add(c+"");
+            temp="";
+            i++;
+        }
+        for(String t: list){
+            if(t.length()>1)
+                temp+=findLocation(t,currentIndex,cell);
+            else
+                temp+=t;
+        }
+
+        return temp;
+    }
+
+    private String findLocation(String text, int currentIndex, Cell cell){
+        try{
+            double num = Double.parseDouble(text);
+            return num+"";
+        }catch (NumberFormatException e){
+            Hashtable<String,String> ht = new Hashtable<>();
+            ht.put("Total_100",CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()-3-currentIndex));
+            ht.put("Total_50",CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()-2-currentIndex));
+            ht.put("Total_60",CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()-1-currentIndex));
+            ht.put("Total_10",CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()-currentIndex));
+
+            ht.put("Total_Tip_100",CellReference.convertNumToColString(cell.getColumnIndex()+1) + (cell.getRowIndex()-3-currentIndex));
+            ht.put("Total_Tip_50",CellReference.convertNumToColString(cell.getColumnIndex()+1) + (cell.getRowIndex()-3-currentIndex) + "*50");
+            ht.put("Total_Tip_60",CellReference.convertNumToColString(cell.getColumnIndex()+1) + (cell.getRowIndex()-3-currentIndex) + "*60");
+            ht.put("Total_Tip_10",CellReference.convertNumToColString(cell.getColumnIndex()+1) + (cell.getRowIndex()-3-currentIndex) + "*10");
+
+            ht.put("Check", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+2-currentIndex));
+            ht.put("Cash_Without_Tip", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+3-currentIndex));
+            ht.put("60_Percent", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+4-currentIndex));
+            ht.put("Check_2", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+5-currentIndex));
+            ht.put("15_Percent", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+6-currentIndex));
+            ht.put("Cash_Payment", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+7-currentIndex));
+            ht.put("Total_Payment", CellReference.convertNumToColString(cell.getColumnIndex()) + (cell.getRowIndex()+8-currentIndex));
+
+            for(String t: ht.keySet()){
+                if(t.equalsIgnoreCase(text)){
+                    return ht.get(t);
+                }
+            }
+        }
+        return null;
+    }
 }
